@@ -100,31 +100,37 @@ useEffect(() => {
 
     }
 
-    async function loadStats(){
+  }
 
-  const response =
-  await fetch('/phpapi/Nail/api_stats.php');
+  async function loadStats(){
 
-  const data =
-  await response.json();
+    try{
 
-  setStats(data);
+      const response =
+      await fetch('/phpapi/Nail/api_stats.php');
 
-}
+      const data =
+      await response.json();
+
+      setStats(data);
+
+    }catch(err){
+
+      console.log(err);
+
+    }
 
   }
 
-  // load pertama
   loadReviews();
   loadStats();
 
-  // refresh tiap 5 detik
-  const interval =
-  setInterval(loadReviews, 5000);
+  const interval = setInterval(() => {
+    loadReviews();
+    loadStats();
+  },5000);
 
-  // bersihkan interval saat component ditutup
-  return () =>
-    clearInterval(interval);
+  return () => clearInterval(interval);
 
 }, []);
 
