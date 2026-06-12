@@ -1,4 +1,47 @@
-export default function HomeBeautyBaliFantasyWorld() {
+
+import { useState, useEffect } from "react";
+
+import {
+BrowserRouter,
+Routes,
+Route
+} from "react-router-dom";
+
+import ReviewForm from "./pages/ReviewForm";
+import AdminReviews from "./pages/AdminReviews";
+
+export default function App() {
+
+return (
+
+<BrowserRouter>
+
+<Routes>
+
+<Route
+path="/"
+element={<HomeBeautyBali />}
+/>
+
+<Route
+path="/review"
+element={<ReviewForm />}
+/>
+
+<Route
+path="/admin"
+element={<AdminReviews />}
+/>
+
+</Routes>
+
+</BrowserRouter>
+
+);
+
+}
+
+function HomeBeautyBali() {
   const services = [
     {
       title: 'Gel Nails',
@@ -29,23 +72,78 @@ export default function HomeBeautyBaliFantasyWorld() {
     'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1200&auto=format&fit=crop',
   ];
 
-  const testimonials = [
-    {
-      name: 'Bella',
-      role: 'Beauty Explorer',
-      text: 'My nails never looked this magical before ✨',
-    },
-    {
-      name: 'Sofia',
-      role: 'Princess Customer',
-      text: 'The cutest nail art studio experience in Bali 💖',
-    },
-    {
-      name: 'Luna',
-      role: 'Fantasy Girl',
-      text: 'Feels like entering a cozy beauty game world 🌸',
-    },
-  ];
+const [testimonials, setTestimonials] = useState([]);
+
+const [showTopButton, setShowTopButton] = useState(false);
+
+useEffect(() => {
+
+  async function loadReviews(){
+
+    try{
+
+      const response =
+      await fetch('/phpapi/Nail/api_reviews.php');
+
+      if(!response.ok){
+        throw new Error('API Error');
+      }
+
+      const data =
+      await response.json();
+
+      setTestimonials(data);
+
+    }catch(err){
+
+      console.log(err);
+
+    }
+
+    async function loadStats(){
+
+  const response =
+  await fetch('/phpapi/Nail/api_stats.php');
+
+  const data =
+  await response.json();
+
+  setStats(data);
+
+}
+
+  }
+
+  // load pertama
+  loadReviews();
+  loadStats();
+
+  // refresh tiap 5 detik
+  const interval =
+  setInterval(loadReviews, 5000);
+
+  // bersihkan interval saat component ditutup
+  return () =>
+    clearInterval(interval);
+
+}, []);
+
+const [stats,setStats] = useState({
+  total_reviews: 0,
+  avg_rating: 0
+});
+
+useEffect(() => {
+  const handleScroll = () => {
+    setShowTopButton(window.scrollY > 400);
+  };
+
+  window.addEventListener('scroll', handleScroll);
+
+  return () => {
+    window.removeEventListener('scroll', handleScroll);
+  };
+}, []);
 
   return (
     <div className="bg-[#fff7f4] text-[#5b3b31] overflow-hidden min-h-screen">
@@ -110,22 +208,29 @@ export default function HomeBeautyBaliFantasyWorld() {
               <button className="bg-[#ff7cab] hover:scale-105 transition text-white px-8 py-5 rounded-[24px] font-black shadow-2xl shadow-pink-300/50 border-b-[6px] border-[#e15d90]">
                 Start Beauty Journey
               </button>
-
-              <button className="bg-[#fff0c9] hover:scale-105 transition text-[#8a5c47] px-8 py-5 rounded-[24px] font-black shadow-xl border-b-[6px] border-[#f0c96f]">
-                Explore Gallery
-              </button>
             </div>
-
             <div className="grid grid-cols-3 gap-6 mt-16 max-w-lg">
-              <div>
-                <div className="text-4xl font-black text-[#ff7cab]">1K+</div>
-                <div className="text-sm text-[#9a7481]">Happy Clients</div>
-              </div>
+<div>
+  <div className="text-4xl font-black text-[#ff7cab]">
+    {stats.total_reviews}+
+  </div>
 
-              <div>
-                <div className="text-4xl font-black text-[#ff7cab]">5★</div>
-                <div className="text-sm text-[#9a7481]">Beauty Rating</div>
-              </div>
+  <div className="text-sm text-[#9a7481]">
+    Happy Clients
+  </div>
+</div>
+
+<div>
+  <div className="text-4xl font-black text-[#ff7cab]">
+    {stats.total_reviews >= 50
+      ? `${stats.avg_rating}★`
+      : 'NEW'}
+  </div>
+
+  <div className="text-sm text-[#9a7481]">
+    Beauty Rating
+  </div>
+</div>
 
               <div>
                 <div className="text-4xl font-black text-[#ff7cab]">24/7</div>
@@ -135,7 +240,7 @@ export default function HomeBeautyBaliFantasyWorld() {
           </div>
 
           <div className="relative flex justify-center">
-            <div className="absolute w-[450px] h-[450px] bg-pink-200/50 rounded-full blur-3xl"></div>
+            <div className="absolute w-[450px] h-[460px] bg-pink-200/50 rounded-full blur-3xl"></div>
 
             <div className="relative bg-white/60 backdrop-blur-xl p-5 rounded-[40px] border-4 border-[#ffd0e0] shadow-2xl rotate-2 hover:rotate-0 transition duration-500">
               <img
@@ -148,7 +253,7 @@ export default function HomeBeautyBaliFantasyWorld() {
                 Cute ✨
               </div>
 
-              <div className="absolute -bottom-5 -right-5 bg-[#ffe38d] text-[#7b4d29] px-6 py-3 rounded-2xl font-black shadow-xl">
+              <div className="absolute -bottom-1 -right-5 bg-[#ffe38d] text-[#7b4d29] px-6 py-3 rounded-2xl font-black shadow-xl">
                 Cozy Salon
               </div>
             </div>
@@ -202,8 +307,10 @@ export default function HomeBeautyBaliFantasyWorld() {
               Beauty Gallery
             </h2>
           </div>
+          
 
           <div className="grid lg:grid-cols-4 gap-8">
+            
             {gallery.map((image, index) => (
               <div
                 key={index}
@@ -216,8 +323,33 @@ export default function HomeBeautyBaliFantasyWorld() {
                 />
               </div>
             ))}
+
           </div>
         </div>
+                    <div className="flex justify-center mt-12">
+  <a
+    href="https://www.instagram.com/homebeauty.bali?igsh=MXB0ZWszMGkyYXNnNw=="
+    target="_blank"
+    rel="noopener noreferrer"
+    className="
+      inline-block
+      bg-[#fff0c9]
+      hover:scale-105
+      transition-all
+      duration-300
+      text-[#8a5c47]
+      px-10
+      py-5
+      rounded-[24px]
+      font-black
+      shadow-xl
+      border-b-[6px]
+      border-[#f0c96f]
+    "
+  >
+    Explore Gallery
+  </a>
+</div>
       </section>
 
       {/* BOOKING */}
@@ -237,13 +369,33 @@ export default function HomeBeautyBaliFantasyWorld() {
             Glow Up?
           </h2>
 
-          <p className="text-lg md:text-xl text-[#8e6875] max-w-2xl mx-auto leading-relaxed mb-10">
+          <p className="text-lg md:text-xl text-[#8e6875] max-w-1xl mx-auto leading-relaxed mb-12">
             Book your cozy fantasy nail art experience and become part of our beauty world.
           </p>
+<a
+  href="https://wa.me/6281933012413"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="
+    inline-block
+    bg-[#ff7cab]
+    hover:scale-105
+    transition
+    text-white
+    px-10
+    py-6
+    rounded-[28px]
+    text-lg
+    font-black
+    shadow-2xl
+    shadow-pink-300/50
+    border-b-[6px]
+    border-[#e15d90]
+  "
+>
+  Begin Beauty Adventure ✨
+</a>
 
-          <button className="bg-[#ff7cab] hover:scale-105 transition text-white px-10 py-6 rounded-[28px] text-lg font-black shadow-2xl shadow-pink-300/50 border-b-[6px] border-[#e15d90]">
-            Begin Beauty Adventure ✨
-          </button>
         </div>
       </section>
 
@@ -253,33 +405,54 @@ export default function HomeBeautyBaliFantasyWorld() {
           <div className="text-[#ff7cab] uppercase tracking-[6px] font-black mb-4">
             Customer Stories
           </div>
-
+            
           <h2 className="text-5xl md:text-6xl font-black text-[#7b4658]">
             Beauty Explorers
           </h2>
         </div>
 
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
-          {testimonials.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white border-4 border-[#ffd4e4] rounded-[36px] p-8 shadow-xl"
-            >
-              <div className="text-5xl mb-6">💖</div>
+<div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
 
-              <p className="text-lg leading-relaxed text-[#8e6875] mb-8">
-                “{item.text}”
-              </p>
+{testimonials.map((item,index) => (
 
-              <div>
-                <div className="font-black text-2xl text-[#d65a8d]">
-                  {item.name}
-                </div>
-                <div className="text-[#9b7583]">{item.role}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+<div
+  key={index}
+  className="
+    bg-white
+    border-4
+    border-[#ffd4e4]
+    rounded-[36px]
+    p-8
+    shadow-xl
+  "
+>
+
+  <div className="text-5xl mb-6">
+    💖
+  </div>
+
+  <p className="text-lg leading-relaxed text-[#8e6875] mb-8">
+    "{item.review}"
+  </p>
+
+  <div>
+
+    <div className="font-black text-2xl text-[#d65a8d]">
+      {item.nama}
+    </div>
+
+    <div className="text-[#9b7583]">
+      ⭐ {item.rating}/5
+    </div>
+
+  </div>
+
+</div>
+
+))}
+
+</div>
+
       </section>
 
       {/* FOOTER */}
@@ -307,6 +480,34 @@ export default function HomeBeautyBaliFantasyWorld() {
           </div>
         </div>
       </footer>
-    </div>
-  );
+
+{/* SCROLL TO TOP */}
+{showTopButton && (
+<button
+  onClick={() =>
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  }
+  className="
+    fixed
+    bottom-5
+    right-5
+    z-50
+    hover:scale-110
+    transition-all
+    duration-300
+  "
+>
+  <img
+  src="/girl-up.png"
+  alt="Back To Top"
+  className="w-35"
+/>
+</button>
+)}
+
+</div>
+);
 }

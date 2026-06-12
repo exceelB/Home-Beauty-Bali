@@ -1,1 +1,11 @@
 @import "tailwindcss";
+html {
+  scroll-behavior: smooth;
+}
+
+#services,
+#gallery,
+#booking,
+#testimonials {
+  scroll-margin-top: 120px;
+}

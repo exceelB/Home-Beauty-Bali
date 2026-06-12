@@ -5,6 +5,18 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
+    tailwindcss()
   ],
+
+  server: {
+    proxy: {
+      '/phpapi': {
+        target: 'https://underuse-chaffing-stress.ngrok-free.dev',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) =>
+          path.replace(/^\/phpapi/, '')
+      }
+    }
+  }
 })
