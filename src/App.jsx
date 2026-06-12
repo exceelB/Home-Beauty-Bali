@@ -83,7 +83,9 @@ useEffect(() => {
     try{
 
       const response =
-      await fetch('/phpapi/Nail/api_reviews.php');
+      await fetch(
+'https://underuse-chaffing-stress.ngrok-free.dev/Nail/api_reviews.php'
+);
 
       if(!response.ok){
         throw new Error('API Error');
@@ -107,7 +109,9 @@ useEffect(() => {
     try{
 
       const response =
-      await fetch('/phpapi/Nail/api_stats.php');
+      await fetch(
+'https://underuse-chaffing-stress.ngrok-free.dev/Nail/api_stats.php'
+);
 
       const data =
       await response.json();
